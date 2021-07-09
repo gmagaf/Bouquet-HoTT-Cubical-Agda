@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical #-}
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Prod.Base
 open import Cubical.Foundations.Univalence
@@ -38,6 +37,18 @@ multNaturality g1 g2 = funExt (pointwise g1 g2) where
     ≡⟨ refl ⟩
     automorhpism (m(g1 , g2)) g3 ∎
 
+idNaturality : ∀ {ℓ}{A : Type ℓ} → automorhpism e ≡ idfun (FreeGroupoid A)
+idNaturality {A = A} = funExt pointwise where
+  pointwise : (g : FreeGroupoid A) → automorhpism e g ≡ idfun (FreeGroupoid A) g
+  pointwise g =
+    automorhpism e g
+    ≡⟨ refl ⟩
+    m(g , e)
+    ≡⟨ idr g ⟩
+    g
+    ≡⟨ refl ⟩
+    idfun (FreeGroupoid A) g ∎
+
 invAutomorhpism :  FreeGroupoid A → FreeGroupoid A → FreeGroupoid A
 invAutomorhpism a = automorhpism (inv a)
 rhomotopy : ∀ (a : FreeGroupoid A) → ∀ (g : FreeGroupoid A) → (automorhpism a) (invAutomorhpism a g) ≡ g
@@ -69,6 +80,9 @@ biInvAutomorphisms a = biInvEquiv (automorhpism a) (invAutomorhpism a) (rhomotop
 equivs : FreeGroupoid A → (FreeGroupoid A) ≃ (FreeGroupoid A)
 equivs a = biInvEquiv→Equiv-right (biInvAutomorphisms a)
 
+pathsInU : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
+pathsInU a = ua (equivs a)
+
 naturalityOfEquivs : ∀ (k1 k2 : FreeGroupoid A) → compEquiv (equivs k1) (equivs k2) ≡ equivs (m(k1 , k2))
 naturalityOfEquivs k1 k2 = equivEq h where
   h : (compEquiv (equivs k1) (equivs k2)) .fst ≡ (equivs (m(k1 , k2))) .fst
@@ -85,5 +99,26 @@ naturalityOfEquivs k1 k2 = equivEq h where
     ≡⟨ refl ⟩
     equivs (m(k1 , k2)) .fst ∎
 
-pathsInU : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
-pathsInU a = ua (equivs a)
+naturalityOfIdEquivs : ∀ {ℓ}{A : Type ℓ} → idEquiv (FreeGroupoid A) ≡ equivs e
+naturalityOfIdEquivs {A = A} = equivEq h where
+  h : idEquiv (FreeGroupoid A) .fst ≡ (equivs e) .fst
+  h =
+    idEquiv (FreeGroupoid A) .fst
+    ≡⟨ refl ⟩
+    idfun (FreeGroupoid A)
+    ≡⟨ sym idNaturality ⟩
+    automorhpism e
+    ≡⟨ refl ⟩
+    (equivs e) .fst ∎
+
+naturalityOfInvEquivs : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → invEquiv (equivs g) ≡ equivs (inv g)
+naturalityOfInvEquivs g = equivEq h where
+  h : invEquiv (equivs g) .fst ≡ (equivs (inv g)) .fst
+  h =
+    invEquiv (equivs g) .fst
+    ≡⟨ refl ⟩
+    invAutomorhpism g
+    ≡⟨ refl ⟩
+    automorhpism (inv g)
+    ≡⟨ refl ⟩
+    (equivs (inv g)) .fst ∎
