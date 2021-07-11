@@ -52,7 +52,7 @@ idNaturality {A = A} = funExt pointwise where
 invAutomorhpism :  FreeGroupoid A → FreeGroupoid A → FreeGroupoid A
 invAutomorhpism a = automorhpism (inv a)
 rhomotopy : ∀ (a : FreeGroupoid A) → ∀ (g : FreeGroupoid A) → (automorhpism a) (invAutomorhpism a g) ≡ g
-rhomotopy a g = --sym (assoc g (inv a) a) ∙ cong (λ x → m(g , x)) (invl a) ∙ idr g
+rhomotopy a g =
   (automorhpism a) (invAutomorhpism a g)
   ≡⟨ refl ⟩
   m(m(g , inv a) , a)
@@ -122,3 +122,26 @@ naturalityOfInvEquivs g = equivEq h where
     automorhpism (inv g)
     ≡⟨ refl ⟩
     (equivs (inv g)) .fst ∎
+
+naturalityOfAssocEquivs : ∀ {ℓ}{A : Type ℓ} → (g1 g2 g3 : FreeGroupoid A) → (i : I) →
+  compEquiv-assoc (equivs g1) (equivs g2) (equivs g3) i ≡ equivs (assoc g1 g2 g3 i)
+naturalityOfAssocEquivs g1 g2 g3 i = equivEq h where
+  h : compEquiv-assoc (equivs g1) (equivs g2) (equivs g3) i .fst ≡ equivs (assoc g1 g2 g3 i) .fst
+  h =
+    compEquiv-assoc (equivs g1) (equivs g2) (equivs g3) i .fst
+    ≡⟨ refl ⟩
+    (equivs g3) .fst ∘ (equivs g2) .fst ∘ (equivs g1) .fst
+    ≡⟨ refl ⟩
+    (automorhpism g3) ∘ (equivs g2) .fst ∘ (equivs g1) .fst
+    ≡⟨ refl ⟩
+    (automorhpism g3) ∘ (automorhpism g2) ∘ (equivs g1) .fst
+    ≡⟨ refl ⟩
+    (automorhpism g3) ∘ (automorhpism g2) ∘ (automorhpism g1)
+    ≡⟨ cong (λ s → s ∘ (automorhpism g1)) (multNaturality g2 g3) ⟩
+    automorhpism (m(g2 , g3)) ∘ (automorhpism g1)
+    ≡⟨ multNaturality g1 (m(g2 , g3)) ⟩
+    automorhpism (m(g1 , m(g2 , g3)))
+    ≡⟨ cong automorhpism (λ j → assoc g1 g2 g3 (j ∧ i)) ⟩
+    automorhpism (assoc g1 g2 g3 i)
+    ≡⟨ refl ⟩
+    equivs (assoc g1 g2 g3 i) .fst ∎

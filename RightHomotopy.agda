@@ -4,39 +4,24 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Prod.Base
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
 open import Cubical.Foundations.Transport using(substComposite)
 
 open import WA.WA
 open import WA.FreeGroupoid
 open import WA.GroupoidIsomorphisms
+open import WA.CodeWindingLooping
 
-module WA.Code_Winding where
+open import WA.PathNaturality using (assocFunctoriality ; uaAssocFunctoriality)
 
-code : ∀ {ℓ}(A : Type ℓ) → (W A) → Type ℓ
-code A base       = (FreeGroupoid A)
-code A (loop a i) = pathsInU (η a) i
-
-winding : ∀ {ℓ}(A : Type ℓ) → base ≡ base → (FreeGroupoid A)
-winding A l = transport (cong (code A) l) e
-
-looping : ∀ {ℓ}(A : Type ℓ) → (FreeGroupoid A) → base ≡ base
-looping A (η a) = loop a
-looping A (m (g1 , g2)) = (looping A g1) ∙ (looping A g2)
-looping A e = refl
-looping A (inv x) = sym (looping A x)
-looping A (FreeGroupoid.assoc x y z i) = Cubical.Foundations.GroupoidLaws.assoc (looping A x) (looping A y) (looping A z) i
-looping A (idr x i) = sym (rUnit (looping A x)) i
-looping A (idl x i) = sym (lUnit (looping A x)) i
-looping A (invr x i) = rCancel (looping A x) i
-looping A (invl x i) = lCancel (looping A x) i
+module WA.RightHomotopy where
 
 postulate
   naturalityOfUaPaths : ∀ {ℓ}(A : Type ℓ) → ∀ (g : FreeGroupoid A) → cong (code A) (looping A g) ≡ ua (equivs g)
 
 
--- naturalityOfUaPathsC : ∀ {ℓ}(A : Type ℓ) → ∀ (g : FreeGroupoid A) → cong (code A) (looping A g) ≡ ua (equivs g)
--- naturalityOfUaPathsC A (η a) =
+-- naturalityOfUaPaths : ∀ {ℓ}(A : Type ℓ) → ∀ (g : FreeGroupoid A) → cong (code A) (looping A g) ≡ ua (equivs g)
+-- naturalityOfUaPaths A (η a) =
 --   cong (code A) (looping A (η a))
 --   ≡⟨ refl ⟩
 --   cong (code A) (loop a)
@@ -44,7 +29,7 @@ postulate
 --   pathsInU (η a)
 --   ≡⟨ refl ⟩
 --   ua (equivs (η a)) ∎
--- naturalityOfUaPathsC A (m(g1 , g2)) =
+-- naturalityOfUaPaths A (m(g1 , g2)) =
 --   cong (code A) (looping A (m(g1 , g2)))
 --   ≡⟨ refl ⟩
 --   cong (code A) ((looping A g1) ∙ (looping A g2))
@@ -58,7 +43,7 @@ postulate
 --   ua (compEquiv (equivs g1) (equivs g2))
 --   ≡⟨ cong (λ x → ua x) (naturalityOfEquivs g1 g2) ⟩
 --   ua (equivs (m(g1 , g2))) ∎
--- naturalityOfUaPathsC A e =
+-- naturalityOfUaPaths A e =
 --   cong (code A) (looping A e)
 --   ≡⟨ refl ⟩
 --   cong (code A) (refl {x = base})
@@ -68,20 +53,39 @@ postulate
 --   ua (idEquiv (FreeGroupoid A) )
 --   ≡⟨ cong (λ s → ua s) naturalityOfIdEquivs ⟩
 --   ua (equivs e) ∎
--- naturalityOfUaPathsC A (inv g) =
+-- naturalityOfUaPaths A (inv g) =
 --   cong (code A) (looping A (inv g))
 --   ≡⟨ refl ⟩
 --   cong (code A) (sym (looping A g))
 --   ≡⟨ refl ⟩
 --   sym (cong (code A) (looping A g))
---   ≡⟨ cong sym (naturalityOfUaPathsC A g) ⟩
+--   ≡⟨ cong sym (naturalityOfUaPaths A g) ⟩
 --   sym (ua (equivs g))
 --   ≡⟨ sym (uaInvEquiv (equivs g)) ⟩
 --   ua (invEquiv (equivs g))
 --   ≡⟨ cong ua (naturalityOfInvEquivs g) ⟩
 --   ua (equivs (inv g)) ∎
+-- naturalityOfUaPaths A (assoc g1 g2 g3 i) =
+--   cong (code A) (looping A (assoc g1 g2 g3 i))
+--   ≡⟨ refl ⟩
+--   cong (code A) (pathAssoc (looping A g1) (looping A g2) (looping A g3) i)
+--   ≡⟨ refl ⟩
+--   cong (cong (code A)) (pathAssoc (looping A g1) (looping A g2) (looping A g3)) i
+--   ≡⟨ assocFunctoriality (code A) (looping A g1) (looping A g2) (looping A g3) i ⟩
+--   pathAssoc (cong (code A) (looping A g1)) (cong (code A) (looping A g2)) (cong (code A) (looping A g3)) i
+--   ≡⟨ cong (λ s1 → pathAssoc s1 (cong (code A) (looping A g2)) (cong (code A) (looping A g3)) i) (naturalityOfUaPaths A g1) ⟩
+--   pathAssoc (ua (equivs g1)) (cong (code A) (looping A g2)) (cong (code A) (looping A g3)) i
+--   ≡⟨ cong (λ s2 → pathAssoc (ua (equivs g1)) s2 (cong (code A) (looping A g3)) i) (naturalityOfUaPaths A g2) ⟩
+--   pathAssoc (ua (equivs g1)) (ua (equivs g2)) (cong (code A) (looping A g3)) i
+--   ≡⟨ cong (λ s3 → pathAssoc (ua (equivs g1)) (ua (equivs g2)) s3 i) (naturalityOfUaPaths A g3) ⟩
+--   pathAssoc (ua (equivs g1)) (ua (equivs g2)) (ua (equivs g3)) i
+--   ≡⟨ uaAssocFunctoriality (equivs g1) (equivs g2) (equivs g3) i ⟩
+--   cong ua (compEquiv-assoc (equivs g1) (equivs g2) (equivs g3)) i
+--   ≡⟨ refl ⟩
+--   ua ((compEquiv-assoc (equivs g1) (equivs g2) (equivs g3)) i)
+--   ≡⟨ cong ua (naturalityOfAssocEquivs g1 g2 g3 i) ⟩
+--   ua (equivs (assoc g1 g2 g3 i)) ∎
 
--- naturalityOfUaPaths A (FreeGroupoid.assoc g1 g2 g3 i)
 -- naturalityOfUaPaths A (idr g1 i)
 -- naturalityOfUaPaths A (idl g1 i)
 -- naturalityOfUaPaths A (invr g1 i)
