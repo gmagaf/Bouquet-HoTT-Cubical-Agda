@@ -15,7 +15,7 @@ data FreeGroupoid (A : Type ℓ) : Type ℓ where
   e : FreeGroupoid A
   inv : FreeGroupoid A → FreeGroupoid A
   assoc : ∀ x y z → m(x , m(y , z)) ≡ m(m(x , y) , z)
-  idr : ∀ x → m(x , e) ≡ x
-  idl : ∀ x → m(e , x) ≡ x
+  idr : ∀ x → x ≡ m(x , e)
+  idl : ∀ x → x ≡  m(e , x)
   invr : ∀ x → m(x , inv x) ≡ e
   invl : ∀ x → m(inv x , x) ≡ e

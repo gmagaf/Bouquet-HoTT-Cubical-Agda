@@ -12,6 +12,16 @@ open import Cubical.Data.Unit.Base
 
 module WA.PathNaturality where
 
+
+compSquares :
+  ∀ {ℓ}{A : Type ℓ}
+  {a₀₀ a₀₁ a₀₂ : A} {a₀ₗ : a₀₀ ≡ a₀₁} {a₀ᵣ : a₀₁ ≡ a₀₂}
+  {a₁₀ a₁₁ a₁₂ : A} {a₁ₗ : a₁₀ ≡ a₁₁} {a₁ᵣ : a₁₁ ≡ a₁₂}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁} {a₋₂ : a₀₂ ≡ a₁₂} →
+  PathP (λ i → a₋₀ i ≡ a₋₁ i) a₀ₗ a₁ₗ → PathP (λ i → a₋₁ i ≡ a₋₂ i) a₀ᵣ a₁ᵣ → PathP (λ i → a₋₀ i ≡ a₋₂ i) (a₀ₗ ∙ a₀ᵣ) (a₁ₗ ∙ a₁ᵣ)
+compSquares s1 s2 = λ i → (s1 i) ∙ (s2 i)
+
+
 assocLem1 : ∀ {ℓ ℓ'}{A : Type ℓ}{B : Type ℓ'}{x y z w : A} → (f : A → B) → (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → cong f (p ∙ (q ∙ r)) ≡ (cong f p) ∙ ((cong f q) ∙ (cong f r))
 assocLem1 f p q r =
   cong f (p ∙ (q ∙ r))
@@ -120,3 +130,93 @@ r1 {ℓ = ℓ}{A = A}{B = B}{C = C}{D = D} e1 e2 e3 i = EquivJ P r e1 where
 uaAssocFunctoriality : ∀ {ℓ}{A B C D : Type ℓ} → (e1 : A ≃ B) → (e2 : B ≃ C) → (e3 : C ≃ D) → (i : I) →
     pathAssoc (ua e1) (ua e2) (ua e3) i ≡ cong ua (compEquiv-assoc e1 e2 e3) i
 uaAssocFunctoriality = r1
+
+-- aux1 : cong code (looping (m(g2 , g3))) ≡ ua (equivs (m(g2 , g3)))
+-- aux1 =
+--   cong (λ x → x ∙ cong code (looping g3)) (naturalityOfUaPaths g2) ∙
+--   cong (λ x → (ua (equivs g2)) ∙ x) (naturalityOfUaPaths g3) ∙
+--   sym (uaCompEquiv (equivs g2) (equivs g3)) ∙
+--   cong ua (naturalityOfEquivs g2 g3) ∙ refl
+-- aux2 : cong code (looping (m(g1 , g2))) ≡ ua (equivs (m(g1 , g2)))
+-- aux2 =
+--   cong (λ x → x ∙ cong code (looping g2)) (naturalityOfUaPaths g1) ∙
+--   cong (λ x → (ua (equivs g1)) ∙ x) (naturalityOfUaPaths g2) ∙
+--   sym (uaCompEquiv (equivs g1) (equivs g2)) ∙
+--   cong ua (naturalityOfEquivs g1 g2) ∙ refl
+-- l0  : cong code (looping (m(g1 , m(g2 , g3)))) ≡ ua (equivs (m(g1 , m(g2 , g3))))
+-- l0 = naturalityOfUaPaths (m(g1 , m(g2 , g3)))
+-- l1 : cong code (looping (m(m(g1 , g2) , g3))) ≡ ua (equivs (m(m(g1 , g2) , g3)))
+-- l1 = naturalityOfUaPaths (m(m(g1 , g2) , g3))
+-- a₀₀ = cong code (looping (m(g1 , m(g2 , g3))))
+-- a₀₁ = ua (equivs (m(g1 , m(g2 , g3))))
+-- a₁₀ = cong code (looping (m(m(g1 , g2) , g3)))
+-- a₁₁ = ua (equivs (m(m(g1 , g2) , g3)))
+-- a₀₋ : a₀₀ ≡ a₀₁
+-- a₀₋ = l0
+-- a₁₋ : a₁₀ ≡ a₁₁
+-- a₁₋ = l1
+-- a₋₀ : a₀₀ ≡ a₁₀
+-- a₋₀ = λ i → cong code (looping (assoc g1 g2 g3 i))
+-- a₋₁ : a₀₁ ≡ a₁₁
+-- a₋₁ = λ i → ua (equivs (assoc g1 g2 g3 i))
+-- square = Square a₀₋ a₁₋ a₋₀ a₋₁
+-- -- postulate s : square
+-- -- postulate p : PathP (λ i → cong code (looping (assoc g1 g2 g3 i)) ≡ ua (equivs (assoc g1 g2 g3 i))) l0 l1
+-- -- cong code (looping (m(g1 , m(g2 , g3)))) ----------- l0/a₀₋ -----------→ ua (equivs (m(g1 , m(g2 , g3))))
+-- --         |                                                                            |
+-- --         a₋₀                                                                          a₋₁
+-- --         ↓                                                                            ↓
+-- -- cong code (looping (m(m(g1 , g2) , g3))) ----------- l1/a₁₋ -----------→ ua (equivs (m(m(g1 , g2) , g3)))
+-- v1 : ua (equivs g1) ∙ cong code (looping (m(g2 , g3))) ≡ ua (equivs (m(g1 , g2))) ∙ cong code (looping g3)
+-- v1 =
+--   ua (equivs g1) ∙ cong code (looping (m(g2 , g3)))
+--   ≡⟨ cong (λ s → ua (equivs g1) ∙ s) aux1 ⟩
+--   ua (equivs g1) ∙ ua (equivs (m(g2 , g3)))
+--   ≡⟨ sym (uaCompEquiv (equivs g1) (equivs (m(g2 , g3)))) ⟩
+--   ua (compEquiv (equivs g1) (equivs (m(g2 , g3))))
+--   ≡⟨ cong ua (naturalityOfEquivs g1 (m(g2 , g3))) ⟩
+--   ua (equivs (m(g1 , m(g2 , g3))))
+--   ≡⟨ cong (λ x → ua (equivs x)) (assoc g1 g2 g3) ⟩
+--   ua (equivs (m(m (g1 , g2) , g3)))
+--   ≡⟨ cong ua (sym (naturalityOfEquivs (m (g1 , g2)) g3)) ⟩
+--   ua (compEquiv (equivs (m (g1 , g2))) (equivs g3))
+--   ≡⟨ uaCompEquiv (equivs (m (g1 , g2))) (equivs g3) ⟩
+--   ua (equivs (m (g1 , g2))) ∙ ua (equivs g3)
+--   ≡⟨ cong (λ s → ua (equivs (m (g1 , g2))) ∙ s) (sym (naturalityOfUaPaths g3)) ⟩
+--   ua (equivs (m(g1 , g2))) ∙ cong code (looping g3) ∎
+-- v2 : ua (equivs g1) ∙ ua (equivs (m(g2 , g3))) ≡ ua (equivs (m(g1 , g2))) ∙ ua (equivs g3)
+-- v2 =
+--   ua (equivs g1) ∙ ua (equivs (m(g2 , g3)))
+--   ≡⟨ sym (uaCompEquiv (equivs g1) (equivs (m(g2 , g3)))) ⟩
+--   ua (compEquiv (equivs g1) (equivs (m(g2 , g3))))
+--   ≡⟨ cong ua (naturalityOfEquivs g1 (m(g2 , g3))) ⟩
+--   ua (equivs (m(g1 , m(g2 , g3))))
+--   ≡⟨ cong (λ x → ua (equivs x)) (assoc g1 g2 g3) ⟩
+--   ua (equivs (m(m(g1 , g2) , g3)))
+--   ≡⟨ cong ua (sym (naturalityOfEquivs (m(g1 , g2)) g3)) ⟩
+--   ua (compEquiv (equivs (m(g1 , g2))) (equivs g3) )
+--   ≡⟨ uaCompEquiv (equivs (m(g1 , g2))) (equivs g3) ⟩
+--   ua (equivs (m(g1 , g2))) ∙ ua (equivs g3) ∎
+-- v3 : ua (compEquiv (equivs g1) (equivs (m(g2 , g3)))) ≡ ua (compEquiv (equivs (m(g1 , g2))) (equivs g3))
+-- v3 =
+--   ua (compEquiv (equivs g1) (equivs (m(g2 , g3))))
+--   ≡⟨ cong ua (naturalityOfEquivs g1 (m(g2 , g3))) ⟩
+--   ua (equivs (m(g1 , m(g2 , g3))))
+--   ≡⟨ cong (λ x → ua (equivs x)) (assoc g1 g2 g3) ⟩
+--   ua (equivs (m(m(g1 , g2) , g3)))
+--   ≡⟨ cong ua (sym (naturalityOfEquivs (m(g1 , g2)) g3)) ⟩
+--   ua (compEquiv (equivs (m(g1 , g2))) (equivs g3)) ∎
+-- postulate s1 : PathP (λ i → cong code (looping (assoc g1 g2 g3 i)) ≡ v1 i) (cong (λ x → x ∙ cong code (looping (m(g2 , g3)))) (naturalityOfUaPaths g1)) (cong (λ x → x ∙ cong code (looping g3)) (aux2))
+-- postulate s2 : PathP (λ i → v1 i ≡ v2 i) (cong (λ x → (ua (equivs g1)) ∙ x) (aux1)) (cong (λ x → (ua (equivs (m(g1 , g2)))) ∙ x) (naturalityOfUaPaths g3))
+-- postulate s3 : PathP (λ i → v2 i ≡ v3 i) (sym (uaCompEquiv (equivs g1) (equivs (m(g2 , g3))))) (sym (uaCompEquiv (equivs (m(g1 , g2))) (equivs g3)))
+-- postulate s4 : PathP (λ i → v3 i ≡ ua (equivs (assoc g1 g2 g3 i))) (cong ua (naturalityOfEquivs g1 (m(g2 , g3)))) (cong ua (naturalityOfEquivs (m(g1 , g2)) g3))
+-- -- s4 = λ i →
+-- -- ua (compEquiv (equivs g1) (equivs (m(g2 , g3)))) --- ua (compEquiv (equivs g1) (compEquiv (equivs g2) (equivs g3))) --- l0 ----- ua (equivs g1 * (g2 * g3))
+-- --     |                                                  |                                                                          |
+-- --     |v3 i                                              | ua(compEquiv-assoc (equivs g1) (equivs g2) (equivs g3) i)                |ua (equivs (assoc g1 g2 g3 i)))
+-- --     |                                                  |                                                                          |
+-- -- ua (compEquiv (equivs (m(g1 , g2))) (equivs g3)) --- ua (compEquiv (compEquiv (equivs g1) (equivs g2)) (equivs g3)) --- l1 ----- ua (equivs (g1 * g2) * g3)
+-- s5 : PathP (λ i → ua (equivs (assoc g1 g2 g3 i)) ≡ ua (equivs (assoc g1 g2 g3 i))) refl refl
+-- s5 = λ i → refl
+-- s : square
+-- s = compSquares s1 (compSquares s2 (compSquares s3 (compSquares s4 s5)))

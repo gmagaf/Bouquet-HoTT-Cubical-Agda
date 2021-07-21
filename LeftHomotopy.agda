@@ -13,4 +13,4 @@ open import WA.Code_Winding
 
 module WA.LeftHomotopy where
 
--- left-homotopy : ∀ {ℓ}(A : Type ℓ) → ∀ (l : base ≡ base) → looping A (winding A l) ≡ l
+-- left-homotopy : ∀ {ℓ}{A : Type ℓ} → ∀ (l : base ≡ base) → looping (winding l) ≡ l

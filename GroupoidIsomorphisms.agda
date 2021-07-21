@@ -6,6 +6,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.BiInvertible
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
 
 open import WA.WA
 open import WA.FreeGroupoid
@@ -44,7 +45,7 @@ idNaturality {A = A} = funExt pointwise where
     automorhpism e g
     ≡⟨ refl ⟩
     m(g , e)
-    ≡⟨ idr g ⟩
+    ≡⟨ sym (idr g) ⟩
     g
     ≡⟨ refl ⟩
     idfun (FreeGroupoid A) g ∎
@@ -60,7 +61,7 @@ rhomotopy a g =
   m(g , m(inv a , a))
   ≡⟨ cong (λ x → m(g , x)) (invl a) ⟩
   m(g , e)
-  ≡⟨ idr g ⟩
+  ≡⟨ sym (idr g) ⟩
   g ∎
 lhomotopy : ∀ (a : FreeGroupoid A) → ∀ (g : FreeGroupoid A) → invAutomorhpism a ((automorhpism a) g) ≡ g
 lhomotopy a g =
@@ -71,7 +72,7 @@ lhomotopy a g =
   m(g , m(a , inv a))
   ≡⟨ cong (λ x → m(g , x)) (invr a) ⟩
   m(g , e)
-  ≡⟨ idr g ⟩
+  ≡⟨ sym (idr g) ⟩
   g ∎
 
 biInvAutomorphisms : FreeGroupoid A → BiInvEquiv (FreeGroupoid A) (FreeGroupoid A)
@@ -145,3 +146,65 @@ naturalityOfAssocEquivs g1 g2 g3 i = equivEq h where
     automorhpism (assoc g1 g2 g3 i)
     ≡⟨ refl ⟩
     equivs (assoc g1 g2 g3 i) .fst ∎
+
+-- Some other implementations of pathsInU
+
+automorhpism' : ∀ (a : A) → FreeGroupoid A → FreeGroupoid A
+automorhpism' a g = m(g , η a)
+
+invAutomorhpism' :  ∀ (a : A) → FreeGroupoid A → FreeGroupoid A
+invAutomorhpism' a g = m(g , inv(η a))
+
+rhomotopy' : ∀ (a : A) → ∀ (g : FreeGroupoid A) → (automorhpism' a) (invAutomorhpism' a g) ≡ g
+rhomotopy' a g =
+  (automorhpism' a) (invAutomorhpism' a g)
+  ≡⟨ refl ⟩
+  m(m(g , inv (η a)) , (η a))
+  ≡⟨ sym (assoc g (inv (η a)) (η a)) ⟩
+  m(g , m(inv (η a) , (η a)))
+  ≡⟨ cong (λ x → m(g , x)) (invl (η a)) ⟩
+  m(g , e)
+  ≡⟨ sym (idr g) ⟩
+  g ∎
+lhomotopy' : ∀ (a : A) → ∀ (g : FreeGroupoid A) → invAutomorhpism' a ((automorhpism' a) g) ≡ g
+lhomotopy' a g =
+  invAutomorhpism' a ((automorhpism' a) g)
+  ≡⟨ refl ⟩
+  m(m(g , (η a)) , inv (η a))
+  ≡⟨ sym (assoc g (η a) (inv (η a))) ⟩
+  m(g , m((η a) , inv (η a)))
+  ≡⟨ cong (λ x → m(g , x)) (invr (η a)) ⟩
+  m(g , e)
+  ≡⟨ sym (idr g) ⟩
+  g ∎
+
+biInvAutomorphisms' : A → BiInvEquiv (FreeGroupoid A) (FreeGroupoid A)
+biInvAutomorphisms' a = biInvEquiv (automorhpism' a) (invAutomorhpism' a) (rhomotopy' a) (invAutomorhpism' a) (lhomotopy' a)
+
+equivAutomorphisms' : A → (FreeGroupoid A) ≃ (FreeGroupoid A)
+equivAutomorphisms' a = biInvEquiv→Equiv-right (biInvAutomorphisms' a)
+
+pathsInU' : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
+pathsInU' (η a)              = ua (equivAutomorphisms' a)
+pathsInU' (m(g1 , g2))       = pathsInU' g1 ∙ pathsInU' g2
+pathsInU' e                  = refl
+pathsInU' (inv g)            = sym (pathsInU' g)
+pathsInU' (assoc g1 g2 g3 i) = pathAssoc (pathsInU' g1) (pathsInU' g2) (pathsInU' g3) i
+pathsInU' (idr g i)          = rUnit (pathsInU' g) i
+pathsInU' (idl g i)          = lUnit (pathsInU' g) i
+pathsInU' (invr g i)         = rCancel (pathsInU' g) i
+pathsInU' (invl g i)         = lCancel (pathsInU' g) i
+
+equivs'' : FreeGroupoid A → (FreeGroupoid A) ≃ (FreeGroupoid A)
+equivs'' (η a)              = equivAutomorphisms' a
+equivs'' (m(g1 , g2))       = compEquiv (equivs'' g1) (equivs'' g2)
+equivs'' e                  = idEquiv _
+equivs'' (inv g)            = invEquiv (equivs'' g)
+equivs'' (assoc g1 g2 g3 i) = compEquiv-assoc (equivs'' g1) (equivs'' g2) (equivs'' g3) i
+equivs'' (idr g i)          = sym (compEquivEquivId (equivs'' g)) i
+equivs'' (idl g i)          = sym (compEquivIdEquiv (equivs'' g)) i
+equivs'' (invr g i)         = invEquiv-is-rinv (equivs'' g) i
+equivs'' (invl g i)         = invEquiv-is-linv (equivs'' g) i
+
+pathsInU'' : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
+pathsInU'' g = ua (equivs'' g)
