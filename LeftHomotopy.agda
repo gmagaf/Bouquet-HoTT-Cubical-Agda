@@ -7,10 +7,10 @@ open import Cubical.Foundations.Equiv
 
 
 open import WA.WA
-open import WA.FreeGroupoid
+open import WA.FreeGroup
 open import WA.GroupoidIsomorphisms
-open import WA.Code_Winding
+open import WA.CodeWindingLooping
 
 module WA.LeftHomotopy where
 
--- left-homotopy : ∀ {ℓ}{A : Type ℓ} → ∀ (l : base ≡ base) → looping (winding l) ≡ l
+-- left-homotopy : ∀ {ℓ}{A : Type ℓ} → ∀ (r : π₁WA {A = A}) → looping (winding r) ≡ r

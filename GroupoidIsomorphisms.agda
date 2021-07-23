@@ -8,8 +8,7 @@ open import Cubical.Foundations.Equiv.BiInvertible
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
 
-open import WA.WA
-open import WA.FreeGroupoid
+open import WA.FreeGroup
 
 module WA.GroupoidIsomorphisms where
 
@@ -19,12 +18,12 @@ private
     A : Type ℓ
 
 
-automorhpism : ∀ (a : FreeGroupoid A) → FreeGroupoid A → FreeGroupoid A
+automorhpism : ∀ (a : FreeGroup A) → FreeGroup A → FreeGroup A
 automorhpism a g = m(g , a)
 
-multNaturality : (g1 g2 : FreeGroupoid A) → (automorhpism g2 ∘ automorhpism g1) ≡ automorhpism (m(g1 , g2))
+multNaturality : (g1 g2 : FreeGroup A) → (automorhpism g2 ∘ automorhpism g1) ≡ automorhpism (m(g1 , g2))
 multNaturality g1 g2 = funExt (pointwise g1 g2) where
-  pointwise : (g1 g2 g3 : FreeGroupoid A) → (automorhpism g2 ∘ automorhpism g1) g3 ≡ automorhpism (m(g1 , g2)) g3
+  pointwise : (g1 g2 g3 : FreeGroup A) → (automorhpism g2 ∘ automorhpism g1) g3 ≡ automorhpism (m(g1 , g2)) g3
   pointwise g1 g2 g3 =
     (automorhpism g2 ∘ automorhpism g1) g3
     ≡⟨ refl ⟩
@@ -38,9 +37,9 @@ multNaturality g1 g2 = funExt (pointwise g1 g2) where
     ≡⟨ refl ⟩
     automorhpism (m(g1 , g2)) g3 ∎
 
-idNaturality : ∀ {ℓ}{A : Type ℓ} → automorhpism e ≡ idfun (FreeGroupoid A)
+idNaturality : ∀ {ℓ}{A : Type ℓ} → automorhpism e ≡ idfun (FreeGroup A)
 idNaturality {A = A} = funExt pointwise where
-  pointwise : (g : FreeGroupoid A) → automorhpism e g ≡ idfun (FreeGroupoid A) g
+  pointwise : (g : FreeGroup A) → automorhpism e g ≡ idfun (FreeGroup A) g
   pointwise g =
     automorhpism e g
     ≡⟨ refl ⟩
@@ -48,11 +47,11 @@ idNaturality {A = A} = funExt pointwise where
     ≡⟨ sym (idr g) ⟩
     g
     ≡⟨ refl ⟩
-    idfun (FreeGroupoid A) g ∎
+    idfun (FreeGroup A) g ∎
 
-invAutomorhpism :  FreeGroupoid A → FreeGroupoid A → FreeGroupoid A
+invAutomorhpism :  FreeGroup A → FreeGroup A → FreeGroup A
 invAutomorhpism a = automorhpism (inv a)
-rhomotopy : ∀ (a : FreeGroupoid A) → ∀ (g : FreeGroupoid A) → (automorhpism a) (invAutomorhpism a g) ≡ g
+rhomotopy : ∀ (a : FreeGroup A) → ∀ (g : FreeGroup A) → (automorhpism a) (invAutomorhpism a g) ≡ g
 rhomotopy a g =
   (automorhpism a) (invAutomorhpism a g)
   ≡⟨ refl ⟩
@@ -63,7 +62,7 @@ rhomotopy a g =
   m(g , e)
   ≡⟨ sym (idr g) ⟩
   g ∎
-lhomotopy : ∀ (a : FreeGroupoid A) → ∀ (g : FreeGroupoid A) → invAutomorhpism a ((automorhpism a) g) ≡ g
+lhomotopy : ∀ (a : FreeGroup A) → ∀ (g : FreeGroup A) → invAutomorhpism a ((automorhpism a) g) ≡ g
 lhomotopy a g =
   invAutomorhpism a ((automorhpism a) g)
   ≡⟨ refl ⟩
@@ -75,16 +74,16 @@ lhomotopy a g =
   ≡⟨ sym (idr g) ⟩
   g ∎
 
-biInvAutomorphisms : FreeGroupoid A → BiInvEquiv (FreeGroupoid A) (FreeGroupoid A)
+biInvAutomorphisms : FreeGroup A → BiInvEquiv (FreeGroup A) (FreeGroup A)
 biInvAutomorphisms a = biInvEquiv (automorhpism a) (invAutomorhpism a) (rhomotopy a) (invAutomorhpism a) (lhomotopy a)
 
-equivs : FreeGroupoid A → (FreeGroupoid A) ≃ (FreeGroupoid A)
+equivs : FreeGroup A → (FreeGroup A) ≃ (FreeGroup A)
 equivs a = biInvEquiv→Equiv-right (biInvAutomorphisms a)
 
-pathsInU : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
+pathsInU : FreeGroup A → (FreeGroup A) ≡ (FreeGroup A)
 pathsInU a = ua (equivs a)
 
-naturalityOfEquivs : ∀ (k1 k2 : FreeGroupoid A) → compEquiv (equivs k1) (equivs k2) ≡ equivs (m(k1 , k2))
+naturalityOfEquivs : ∀ (k1 k2 : FreeGroup A) → compEquiv (equivs k1) (equivs k2) ≡ equivs (m(k1 , k2))
 naturalityOfEquivs k1 k2 = equivEq h where
   h : (compEquiv (equivs k1) (equivs k2)) .fst ≡ (equivs (m(k1 , k2))) .fst
   h =
@@ -100,19 +99,19 @@ naturalityOfEquivs k1 k2 = equivEq h where
     ≡⟨ refl ⟩
     equivs (m(k1 , k2)) .fst ∎
 
-naturalityOfIdEquivs : ∀ {ℓ}{A : Type ℓ} → idEquiv (FreeGroupoid A) ≡ equivs e
+naturalityOfIdEquivs : ∀ {ℓ}{A : Type ℓ} → idEquiv (FreeGroup A) ≡ equivs e
 naturalityOfIdEquivs {A = A} = equivEq h where
-  h : idEquiv (FreeGroupoid A) .fst ≡ (equivs e) .fst
+  h : idEquiv (FreeGroup A) .fst ≡ (equivs e) .fst
   h =
-    idEquiv (FreeGroupoid A) .fst
+    idEquiv (FreeGroup A) .fst
     ≡⟨ refl ⟩
-    idfun (FreeGroupoid A)
+    idfun (FreeGroup A)
     ≡⟨ sym idNaturality ⟩
     automorhpism e
     ≡⟨ refl ⟩
     (equivs e) .fst ∎
 
-naturalityOfInvEquivs : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → invEquiv (equivs g) ≡ equivs (inv g)
+naturalityOfInvEquivs : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroup A) → invEquiv (equivs g) ≡ equivs (inv g)
 naturalityOfInvEquivs g = equivEq h where
   h : invEquiv (equivs g) .fst ≡ (equivs (inv g)) .fst
   h =
@@ -124,7 +123,7 @@ naturalityOfInvEquivs g = equivEq h where
     ≡⟨ refl ⟩
     (equivs (inv g)) .fst ∎
 
-naturalityOfAssocEquivs : ∀ {ℓ}{A : Type ℓ} → (g1 g2 g3 : FreeGroupoid A) → (i : I) →
+naturalityOfAssocEquivs : ∀ {ℓ}{A : Type ℓ} → (g1 g2 g3 : FreeGroup A) → (i : I) →
   compEquiv-assoc (equivs g1) (equivs g2) (equivs g3) i ≡ equivs (assoc g1 g2 g3 i)
 naturalityOfAssocEquivs g1 g2 g3 i = equivEq h where
   h : compEquiv-assoc (equivs g1) (equivs g2) (equivs g3) i .fst ≡ equivs (assoc g1 g2 g3 i) .fst
@@ -146,65 +145,3 @@ naturalityOfAssocEquivs g1 g2 g3 i = equivEq h where
     automorhpism (assoc g1 g2 g3 i)
     ≡⟨ refl ⟩
     equivs (assoc g1 g2 g3 i) .fst ∎
-
--- Some other implementations of pathsInU
-
-automorhpism' : ∀ (a : A) → FreeGroupoid A → FreeGroupoid A
-automorhpism' a g = m(g , η a)
-
-invAutomorhpism' :  ∀ (a : A) → FreeGroupoid A → FreeGroupoid A
-invAutomorhpism' a g = m(g , inv(η a))
-
-rhomotopy' : ∀ (a : A) → ∀ (g : FreeGroupoid A) → (automorhpism' a) (invAutomorhpism' a g) ≡ g
-rhomotopy' a g =
-  (automorhpism' a) (invAutomorhpism' a g)
-  ≡⟨ refl ⟩
-  m(m(g , inv (η a)) , (η a))
-  ≡⟨ sym (assoc g (inv (η a)) (η a)) ⟩
-  m(g , m(inv (η a) , (η a)))
-  ≡⟨ cong (λ x → m(g , x)) (invl (η a)) ⟩
-  m(g , e)
-  ≡⟨ sym (idr g) ⟩
-  g ∎
-lhomotopy' : ∀ (a : A) → ∀ (g : FreeGroupoid A) → invAutomorhpism' a ((automorhpism' a) g) ≡ g
-lhomotopy' a g =
-  invAutomorhpism' a ((automorhpism' a) g)
-  ≡⟨ refl ⟩
-  m(m(g , (η a)) , inv (η a))
-  ≡⟨ sym (assoc g (η a) (inv (η a))) ⟩
-  m(g , m((η a) , inv (η a)))
-  ≡⟨ cong (λ x → m(g , x)) (invr (η a)) ⟩
-  m(g , e)
-  ≡⟨ sym (idr g) ⟩
-  g ∎
-
-biInvAutomorphisms' : A → BiInvEquiv (FreeGroupoid A) (FreeGroupoid A)
-biInvAutomorphisms' a = biInvEquiv (automorhpism' a) (invAutomorhpism' a) (rhomotopy' a) (invAutomorhpism' a) (lhomotopy' a)
-
-equivAutomorphisms' : A → (FreeGroupoid A) ≃ (FreeGroupoid A)
-equivAutomorphisms' a = biInvEquiv→Equiv-right (biInvAutomorphisms' a)
-
-pathsInU' : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
-pathsInU' (η a)              = ua (equivAutomorphisms' a)
-pathsInU' (m(g1 , g2))       = pathsInU' g1 ∙ pathsInU' g2
-pathsInU' e                  = refl
-pathsInU' (inv g)            = sym (pathsInU' g)
-pathsInU' (assoc g1 g2 g3 i) = pathAssoc (pathsInU' g1) (pathsInU' g2) (pathsInU' g3) i
-pathsInU' (idr g i)          = rUnit (pathsInU' g) i
-pathsInU' (idl g i)          = lUnit (pathsInU' g) i
-pathsInU' (invr g i)         = rCancel (pathsInU' g) i
-pathsInU' (invl g i)         = lCancel (pathsInU' g) i
-
-equivs'' : FreeGroupoid A → (FreeGroupoid A) ≃ (FreeGroupoid A)
-equivs'' (η a)              = equivAutomorphisms' a
-equivs'' (m(g1 , g2))       = compEquiv (equivs'' g1) (equivs'' g2)
-equivs'' e                  = idEquiv _
-equivs'' (inv g)            = invEquiv (equivs'' g)
-equivs'' (assoc g1 g2 g3 i) = compEquiv-assoc (equivs'' g1) (equivs'' g2) (equivs'' g3) i
-equivs'' (idr g i)          = sym (compEquivEquivId (equivs'' g)) i
-equivs'' (idl g i)          = sym (compEquivIdEquiv (equivs'' g)) i
-equivs'' (invr g i)         = invEquiv-is-rinv (equivs'' g) i
-equivs'' (invl g i)         = invEquiv-is-linv (equivs'' g) i
-
-pathsInU'' : FreeGroupoid A → (FreeGroupoid A) ≡ (FreeGroupoid A)
-pathsInU'' g = ua (equivs'' g)
