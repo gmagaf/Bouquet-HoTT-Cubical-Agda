@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical #-}
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Prod.Base
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.BiInvertible
@@ -10,7 +9,7 @@ open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
 
 open import WA.FreeGroup
 
-module WA.GroupoidIsomorphisms where
+module WA.GroupIsomorphisms where
 
 private
   variable
@@ -19,23 +18,23 @@ private
 
 
 automorhpism : ∀ (a : FreeGroup A) → FreeGroup A → FreeGroup A
-automorhpism a g = m(g , a)
+automorhpism a g = m g a
 
-multNaturality : (g1 g2 : FreeGroup A) → (automorhpism g2 ∘ automorhpism g1) ≡ automorhpism (m(g1 , g2))
+multNaturality : (g1 g2 : FreeGroup A) → (automorhpism g2 ∘ automorhpism g1) ≡ automorhpism (m g1 g2)
 multNaturality g1 g2 = funExt (pointwise g1 g2) where
-  pointwise : (g1 g2 g3 : FreeGroup A) → (automorhpism g2 ∘ automorhpism g1) g3 ≡ automorhpism (m(g1 , g2)) g3
+  pointwise : (g1 g2 g3 : FreeGroup A) → (automorhpism g2 ∘ automorhpism g1) g3 ≡ automorhpism (m g1 g2) g3
   pointwise g1 g2 g3 =
     (automorhpism g2 ∘ automorhpism g1) g3
     ≡⟨ refl ⟩
     automorhpism g2 (automorhpism g1 g3)
     ≡⟨ refl ⟩
-    automorhpism g2 (m(g3 , g1))
+    automorhpism g2 (m g3 g1)
     ≡⟨ refl ⟩
-    m(m(g3 , g1) , g2)
+    m (m g3 g1) g2
     ≡⟨ sym (assoc g3 g1 g2) ⟩
-    m(g3 , m(g1 , g2))
+    m g3 (m g1 g2)
     ≡⟨ refl ⟩
-    automorhpism (m(g1 , g2)) g3 ∎
+    automorhpism (m g1 g2) g3 ∎
 
 idNaturality : ∀ {ℓ}{A : Type ℓ} → automorhpism e ≡ idfun (FreeGroup A)
 idNaturality {A = A} = funExt pointwise where
@@ -43,7 +42,7 @@ idNaturality {A = A} = funExt pointwise where
   pointwise g =
     automorhpism e g
     ≡⟨ refl ⟩
-    m(g , e)
+    m g e
     ≡⟨ sym (idr g) ⟩
     g
     ≡⟨ refl ⟩
@@ -55,22 +54,22 @@ rhomotopy : ∀ (a : FreeGroup A) → ∀ (g : FreeGroup A) → (automorhpism a)
 rhomotopy a g =
   (automorhpism a) (invAutomorhpism a g)
   ≡⟨ refl ⟩
-  m(m(g , inv a) , a)
+  m (m g (inv a)) a
   ≡⟨ sym (assoc g (inv a) a) ⟩
-  m(g , m(inv a , a))
-  ≡⟨ cong (λ x → m(g , x)) (invl a) ⟩
-  m(g , e)
+  m g (m (inv a) a)
+  ≡⟨ cong (λ x → m g x) (invl a) ⟩
+  m g e
   ≡⟨ sym (idr g) ⟩
   g ∎
 lhomotopy : ∀ (a : FreeGroup A) → ∀ (g : FreeGroup A) → invAutomorhpism a ((automorhpism a) g) ≡ g
 lhomotopy a g =
   invAutomorhpism a ((automorhpism a) g)
   ≡⟨ refl ⟩
-  m(m(g , a) , inv a)
+  m (m g a) (inv a)
   ≡⟨ sym (assoc g a (inv a)) ⟩
-  m(g , m(a , inv a))
-  ≡⟨ cong (λ x → m(g , x)) (invr a) ⟩
-  m(g , e)
+  m g (m a (inv a))
+  ≡⟨ cong (λ x → m g x) (invr a) ⟩
+  m g e
   ≡⟨ sym (idr g) ⟩
   g ∎
 
@@ -83,9 +82,9 @@ equivs a = biInvEquiv→Equiv-right (biInvAutomorphisms a)
 pathsInU : FreeGroup A → (FreeGroup A) ≡ (FreeGroup A)
 pathsInU a = ua (equivs a)
 
-naturalityOfEquivs : ∀ (k1 k2 : FreeGroup A) → compEquiv (equivs k1) (equivs k2) ≡ equivs (m(k1 , k2))
+naturalityOfEquivs : ∀ (k1 k2 : FreeGroup A) → compEquiv (equivs k1) (equivs k2) ≡ equivs (m k1 k2)
 naturalityOfEquivs k1 k2 = equivEq h where
-  h : (compEquiv (equivs k1) (equivs k2)) .fst ≡ (equivs (m(k1 , k2))) .fst
+  h : (compEquiv (equivs k1) (equivs k2)) .fst ≡ (equivs (m k1 k2)) .fst
   h =
     compEquiv (equivs k1) (equivs k2) .fst
     ≡⟨ refl ⟩
@@ -95,9 +94,9 @@ naturalityOfEquivs k1 k2 = equivEq h where
     ≡⟨ refl ⟩
     (automorhpism k2) ∘ (automorhpism k1)
     ≡⟨ multNaturality k1 k2 ⟩
-    automorhpism (m(k1 , k2))
+    automorhpism (m k1 k2)
     ≡⟨ refl ⟩
-    equivs (m(k1 , k2)) .fst ∎
+    equivs (m k1 k2) .fst ∎
 
 naturalityOfIdEquivs : ∀ {ℓ}{A : Type ℓ} → idEquiv (FreeGroup A) ≡ equivs e
 naturalityOfIdEquivs {A = A} = equivEq h where
@@ -138,9 +137,9 @@ naturalityOfAssocEquivs g1 g2 g3 i = equivEq h where
     ≡⟨ refl ⟩
     (automorhpism g3) ∘ (automorhpism g2) ∘ (automorhpism g1)
     ≡⟨ cong (λ s → s ∘ (automorhpism g1)) (multNaturality g2 g3) ⟩
-    automorhpism (m(g2 , g3)) ∘ (automorhpism g1)
-    ≡⟨ multNaturality g1 (m(g2 , g3)) ⟩
-    automorhpism (m(g1 , m(g2 , g3)))
+    automorhpism (m g2 g3) ∘ (automorhpism g1)
+    ≡⟨ multNaturality g1 (m g2 g3) ⟩
+    automorhpism (m g1 (m g2 g3))
     ≡⟨ cong automorhpism (λ j → assoc g1 g2 g3 (j ∧ i)) ⟩
     automorhpism (assoc g1 g2 g3 i)
     ≡⟨ refl ⟩
