@@ -33,7 +33,7 @@ code : ∀ {ℓ}{A : Type ℓ} → (W A) → Type ℓ
 code {A = A} base = (FreeGroup A)
 code (loop a i)   = pathsInU (η a) i
 
-encode : ∀ {ℓ}{A : Type ℓ} → (x : W A) → (l : base ≡ x) → code x
+encode : ∀ {ℓ}{A : Type ℓ} → (x : W A) → base ≡ x → code x
 encode x l = subst code l e
 
 winding : ∀ {ℓ}{A : Type ℓ} → π₁WA → FreeGroup A

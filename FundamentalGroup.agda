@@ -2,8 +2,7 @@
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.HITs.SetTruncation.Base
-open import Cubical.HITs.SetTruncation.Properties
+open import Cubical.HITs.SetTruncation
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Algebra.Group
