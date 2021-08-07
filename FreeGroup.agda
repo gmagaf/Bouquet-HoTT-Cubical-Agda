@@ -2,7 +2,10 @@
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws hiding(assoc)
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.BiInvertible
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Monoid.Base
@@ -154,3 +157,57 @@ elimProp {A = A} {B = B} Bprop η-ind m-ind e-ind inv-ind = induction where
     square = isProp→SquareP (λ i i₁ → Bprop (trunc g1 g2 q1 q2 i i₁))
              (cong induction (refl {x = g1})) (cong induction (refl {x = g2}))
              dq1 dq2
+
+freeGroupHom≡ : ∀{ℓ'}{Group : Group ℓ'}{A : Type ℓ}{f g : GroupHom (freeGroupGroup A) Group}
+               → ((a : A) → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
+freeGroupHom≡ {Group = G , GStr} {f = f} {g = g} eqOnA = GroupHom≡ (funExt pointwise) where
+  1g : G
+  1g = GroupStr.1g GStr
+  _·_ : G → G → G
+  _·_ = GroupStr._·_ GStr
+  invg : G → G
+  invg = GroupStr.inv GStr
+  B : ∀ x → Type _
+  B x = (fst f) x ≡ (fst g) x
+  Bprop : ∀ x → isProp (B x)
+  Bprop x = (isSetGroup (G , GStr)) ((fst f) x) ((fst g) x)
+  η-ind : ∀ a → B (η a)
+  η-ind = eqOnA
+  m-ind : ∀ g1 g2 → B g1 → B g2 → B (m g1 g2)
+  m-ind g1 g2 ind1 ind2 =
+    (fst f) (m g1 g2)
+    ≡⟨ IsGroupHom.pres· (f .snd) g1 g2 ⟩
+    ((fst f) g1) · ((fst f) g2)
+    ≡⟨ cong (λ x → x · ((fst f) g2)) ind1 ⟩
+    ((fst g) g1) · ((fst f) g2)
+    ≡⟨ cong (λ x → ((fst g) g1) · x) ind2 ⟩
+    ((fst g) g1) · ((fst g) g2)
+    ≡⟨ sym (IsGroupHom.pres· (g .snd) g1 g2) ⟩
+    (fst g) (m g1 g2) ∎
+  e-ind : B e
+  e-ind =
+    (fst f) e
+    ≡⟨ IsGroupHom.pres1 (f .snd) ⟩
+    1g
+    ≡⟨ sym (IsGroupHom.pres1 (g .snd)) ⟩
+    (fst g) e ∎
+  inv-ind : ∀ x → B x → B (inv x)
+  inv-ind x ind =
+    (fst f) (inv x)
+    ≡⟨ IsGroupHom.presinv (f .snd) x ⟩
+    invg ((fst f) x)
+    ≡⟨ cong invg ind ⟩
+    invg ((fst g) x)
+    ≡⟨ sym (IsGroupHom.presinv (g .snd) x) ⟩
+    (fst g) (inv x) ∎
+  pointwise : ∀ x → (fst f) x ≡ (fst g) x
+  pointwise = elimProp Bprop η-ind m-ind e-ind inv-ind
+
+A→Group≃GroupHom : ∀{ℓ'}{Group : Group ℓ'} → {A : Type ℓ} → (A → Group .fst) ≃ GroupHom (freeGroupGroup A) Group
+A→Group≃GroupHom {Group = Group} {A = A} = biInvEquiv→Equiv-right (biInvEquiv rec inverse rhomotopy inverse lhomotopy) where
+  inverse : GroupHom (freeGroupGroup A) Group → A → Group .fst
+  inverse hom a = (hom .fst) (η a)
+  rhomotopy : ∀ hom → rec (inverse hom) ≡ hom
+  rhomotopy hom = freeGroupHom≡ (λ a → refl)
+  lhomotopy : ∀ f → inverse (rec f) ≡ f
+  lhomotopy f = funExt (λ a → refl)

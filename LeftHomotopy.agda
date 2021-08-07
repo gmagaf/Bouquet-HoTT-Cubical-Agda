@@ -2,6 +2,7 @@
 
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
 open import Cubical.Foundations.Equiv.BiInvertible
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
@@ -210,6 +211,60 @@ decodeEncode {ℓ = ℓ} {A = A} x p = J P d p where
     loopingoid e
     ≡⟨ refl ⟩
     refl ∎
+
+-- encodeDecode : ∀ {ℓ}{A : Type ℓ} → (x : W A) → (g : code x) → encode x (decode x g) ≡ g
+-- encodeDecode base g = ...
+
+winding : ∀ {ℓ}{A : Type ℓ} → ΩWA → FreeGroupoid A
+winding l = encode base l
+
+postulate helper : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → ∥ cong code (loopingoid g) ≡ ua (equivs g) ∥
+-- helper (η a) = ∣ aux ∣ where
+--   aux : cong code (loopingoid (η a)) ≡ ua (equivs (η a))
+--   aux = refl
+-- helper (m g1 g2) = propRec squash (λ h2' → propRec squash (λ h1' → ∣ aux h1' h2' ∣) h1) h2 where
+--   h1 : ∥ cong code (loopingoid g1) ≡ ua (equivs g1) ∥
+--   h1 = helper g1
+--   h2 : ∥ cong code (loopingoid g2) ≡ ua (equivs g2) ∥
+--   h2 = helper g2
+--   aux : cong code (loopingoid g1) ≡ ua (equivs g1)
+--       → cong code (loopingoid g2) ≡ ua (equivs g2)
+--       → cong code (loopingoid (m g1 g2)) ≡ ua (equivs (m g1 g2))
+--   aux hyp1 hyp2 =
+--     cong code (loopingoid (m g1 g2))
+--     ≡⟨ refl ⟩
+--     cong code (loopingoid g1) ∙ cong code (loopingoid g2)
+--     ≡⟨ cong (λ x → x ∙ cong code (loopingoid g2)) hyp1 ⟩
+--     ua (equivs g1) ∙ cong code (loopingoid g2)
+--     ≡⟨ cong (λ x → ua (equivs g1) ∙ x) hyp2 ⟩
+--     ua (equivs g1) ∙ ua (equivs g2)
+--     ≡⟨ sym (uaCompEquiv (equivs g1) (equivs g2)) ⟩
+--     ua (compEquiv (equivs g1) (equivs g2))
+--     ≡⟨ {!   !} ⟩
+--     ua (equivs (m g1 g2)) ∎
+
+
+
+
+r-hom : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → ∥ winding (loopingoid g) ≡ g ∥
+r-hom g = propRec squash recursion (helper g) where
+  recursion : cong code (loopingoid g) ≡ ua (equivs g)
+              → ∥ winding (loopingoid g) ≡ g ∥
+  recursion hyp = ∣ aux ∣ where
+    aux : winding (loopingoid g) ≡ g
+    aux =
+      winding (loopingoid g)
+      ≡⟨ refl ⟩
+      subst code (loopingoid g) e
+      ≡⟨ refl ⟩
+      transport (cong code (loopingoid g)) e
+      ≡⟨ cong (λ x → transport x e) hyp ⟩
+      transport (ua (equivs g)) e
+      ≡⟨ uaβ  (equivs g) e ⟩
+      m e g
+      ≡⟨ sym (idl g) ⟩
+      g ∎
+
 
 -- left-homotopy : ∀ {ℓ}{A : Type ℓ} → ∀ (r : π₁WA {A = A}) → looping (winding r) ≡ r
 -- left-homotopy r = elim Bset ind r where
