@@ -7,10 +7,9 @@ open import Cubical.Algebra.Group
 open import WA.WA
 open import WA.FreeGroup
 open import WA.GroupIsomorphisms
-open import WA.CodeWindingLooping
 open import WA.FundamentalGroup
 
-module WA.RightHomotopy where
+-- module WA.RightHomotopy where
 
 Bprop : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroup A) → isProp (winding (looping g) ≡ g)
 Bprop g = freeGroupIsSet (winding (looping g)) g
