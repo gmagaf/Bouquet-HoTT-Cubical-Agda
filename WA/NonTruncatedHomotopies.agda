@@ -134,10 +134,32 @@ left-homotopy : ∀ {ℓ}{A : Type ℓ} → ∀ (l : ΩWA {A = A}) → looping (
 left-homotopy l = decodeEncode base l
 
 
--- Non truncated Right Homotopy
+-- Non truncated encodeDecode over all fibrations (with postulate)
 
-helper : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → ∥ cong code (looping g) ≡ ua (equivs g) ∥
-helper = elimProp
+encodeDecode : ∀ {ℓ}{A : Type ℓ} → (x : W A) → (g : code x) → encode x (decode x g) ≡ g
+encodeDecode base = aux where
+  postulate pathEquality : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → cong code (looping g) ≡ ua (equivs g)
+  aux : ∀ g → winding (looping g) ≡ g
+  aux g =
+    winding (looping g)
+    ≡⟨ refl ⟩
+    encode base (decode base g)
+    ≡⟨ refl ⟩
+    transport (cong code (looping g)) e
+    ≡⟨ cong (λ p → transport p e) (pathEquality g) ⟩
+    transport (ua (equivs g)) e
+    ≡⟨ uaβ (equivs g) e ⟩
+    m e g
+    ≡⟨ sym (idl g) ⟩
+    g ∎
+encodeDecode (loop a i) = path i where
+  postulate path : PathP (λ i → (g : code (loop a i)) → encode (loop a i) (decode (loop a i) g) ≡ g)
+                  (encodeDecode base) (encodeDecode base)
+
+-- Truncated proofs of right homotopy of winding/looping functions
+
+truncatedPathEquality : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → ∥ cong code (looping g) ≡ ua (equivs g) ∥
+truncatedPathEquality = elimProp
             Bprop
             (λ a → ∣ η-ind a ∣)
             (λ g1 g2 → λ ∣ind1∣ ∣ind2∣ → rec2 squash (λ ind1 ind2 → ∣ m-ind g1 g2 ind1 ind2 ∣) ∣ind1∣ ∣ind2∣)
@@ -177,8 +199,8 @@ helper = elimProp
     ≡⟨ sym (invPathsInUNaturality g) ⟩
     ua (equivs (inv g)) ∎
 
-right-homotopy : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → ∥ winding (looping g) ≡ g ∥
-right-homotopy g = propRec squash recursion (helper g) where
+truncatedRight-homotopy : ∀ {ℓ}{A : Type ℓ} → (g : FreeGroupoid A) → ∥ winding (looping g) ≡ g ∥
+truncatedRight-homotopy g = propRec squash recursion (truncatedPathEquality g) where
   recursion : cong code (looping g) ≡ ua (equivs g) → ∥ winding (looping g) ≡ g ∥
   recursion hyp = ∣ aux ∣ where
     aux : winding (looping g) ≡ g
@@ -194,3 +216,13 @@ right-homotopy g = propRec squash recursion (helper g) where
       m e g
       ≡⟨ sym (idl g) ⟩
       g ∎
+
+-- Truncated encodeDecode over all fibrations
+
+truncatedEncodeDecode : ∀ {ℓ}{A : Type ℓ} → (x : W A) → (g : code x) → ∥ encode x (decode x g) ≡ g ∥
+truncatedEncodeDecode base = truncatedRight-homotopy
+truncatedEncodeDecode {A = A} (loop a i) = isProp→PathP prop truncatedRight-homotopy truncatedRight-homotopy i where
+  prop : ∀ i → isProp (∀ (g : code (loop a i)) → ∥ encode (loop a i) (decode (loop a i) g) ≡ g ∥)
+  prop i f g = funExt pointwise where
+    pointwise : (x : code (loop a i)) → PathP (λ _ → ∥ encode (loop a i) (decode (loop a i) x) ≡ x ∥) (f x) (g x)
+    pointwise x = isProp→PathP (λ i → squash) (f x) (g x)
