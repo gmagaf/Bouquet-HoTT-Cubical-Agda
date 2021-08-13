@@ -4,7 +4,7 @@ module WA.WA.CodeWindingLooping where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
-open import Cubical.HITs.SetTruncation renaming (rec to recTrunc)
+open import Cubical.HITs.SetTruncation
 open import Cubical.Algebra.Group
 
 open import WA.WA.Base
@@ -44,20 +44,22 @@ winding l = subst code l e
 π₁WA : ∀ {ℓ}{A : Type ℓ} → Type ℓ
 π₁WA {A = A} = π₁WAGroup {A = A} .fst
 
-loopingHom : ∀ {ℓ}{A : Type ℓ} → GroupHom (freeGroupGroup A) π₁WAGroup
-loopingHom {A = A} =
-  let f : A → π₁WA
-      f a = ∣ loop a ∣₂
-  in rec f
+loopingT : ∀ {ℓ}{A : Type ℓ} → ∥ FreeGroupoid A ∥₂ → π₁WA
+loopingT = map looping
 
-windingT : ∀ {ℓ}{A : Type ℓ} → π₁WA → FreeGroup A
-windingT {A = A} s = transport (sym freeGroupTruncIdempotent) (aux s) where
-  aux : ∀ {ℓ}{A : Type ℓ} → π₁WA → ∥ FreeGroupoid A ∥₂
-  aux {A = A} r = recTrunc ∥freeGroupoid∥₂IsSet (λ l → ∣ winding l ∣₂) r
+windingT : ∀ {ℓ}{A : Type ℓ} → π₁WA → ∥ FreeGroupoid A ∥₂
+windingT = map winding
+
+-- loopingHom : ∀ {ℓ}{A : Type ℓ} → GroupHom (freeGroupGroup A) π₁WAGroup
+-- loopingHom {A = A} =
+--   let f : A → π₁WA
+--       f a = ∣ loop a ∣₂
+--   in rec f
+
+-- TODO fix this as an homomorphism
 
 -- TODO Equalities of Functions
 
--- TODO fix this as an homomorphism
 -- windingHom : ∀ {ℓ}{A : Type ℓ} → GroupHom π₁WAGroup (freeGroupGroup A)
 -- windingHom {A = A} = hom , isHom where
   -- f : ΩWA → FreeGroup A
