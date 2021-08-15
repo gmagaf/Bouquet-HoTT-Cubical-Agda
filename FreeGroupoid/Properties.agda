@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+
+- Properties of FreeGroupoid
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.FreeGroupoid.Properties where
@@ -20,6 +27,7 @@ private
     ℓ : Level
     A : Type ℓ
 
+-- The induction principle for the FreeGroupoid for hProps
 elimProp : ∀ {ℓ'}{B : FreeGroupoid A → Type ℓ'}
          → ((x : FreeGroupoid A) → isProp (B x))
          → ((a : A) → B (η a))
@@ -78,6 +86,7 @@ elimProp {B = B} Bprop η-ind m-ind e-ind inv-ind = induction where
     path : PathP (λ i → B (invl g i)) (m-ind (inv g) g pinv p) pe
     path = isProp→PathP (λ i → Bprop (invl g i)) (m-ind (inv g) g pinv p) pe
 
+-- The truncation of the FreeGroupoid is a group and is equal to FreeGroup
 
 ∥freeGroupoid∥₂IsSet : isSet ∥ FreeGroupoid A ∥₂
 ∥freeGroupoid∥₂IsSet = squash₂

@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+
+- Definition of the wedge of A circles of a type aka bouquet
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.WA.Base where

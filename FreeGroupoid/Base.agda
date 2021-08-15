@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+
+- An implementation of the free groupoid (a free group that has no limitiations over the high dimensional path structure)
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.FreeGroupoid.Base where

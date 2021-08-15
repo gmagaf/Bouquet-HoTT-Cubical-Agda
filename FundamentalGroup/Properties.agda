@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+
+- Proof that the fundamental group of a type is indeed a group
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.FundamentalGroup.Properties where

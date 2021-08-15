@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+
+- Properties of the FreeGroup
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.FreeGroup.Properties where
@@ -34,9 +41,11 @@ freeGroupIsGroup = isgroup freeGroupIsMonoid (λ x → invr x , invl x)
 freeGroupGroupStr : GroupStr (FreeGroup A)
 freeGroupGroupStr = groupstr e m inv freeGroupIsGroup
 
+-- FreeGroup is indeed a group
 freeGroupGroup : Type ℓ → Group ℓ
 freeGroupGroup A = FreeGroup A , freeGroupGroupStr
 
+-- The recursion principle for the FreeGroup
 rec : ∀{ℓ'}{Group : Group ℓ'} → {A : Type ℓ} → (A → Group .fst) → GroupHom (freeGroupGroup A) Group
 rec {Group = G , (groupstr eg mg invg (isgroup (ismonoid isSemigroupg identityg) inverseg))} {A = A} f = f' , isHom where
   assocg = IsSemigroup.assoc isSemigroupg
@@ -63,6 +72,7 @@ rec {Group = G , (groupstr eg mg invg (isgroup (ismonoid isSemigroupg identityg)
   isHom : IsGroupHom freeGroupGroupStr f' _
   isHom = record { pres· = λ x y → refl ; pres1 = refl ; presinv = λ x → refl }
 
+-- The induction principle for the FreeGroup for hProps
 elimProp : ∀ {ℓ'}{B : FreeGroup A → Type ℓ'}
          → ((x : FreeGroup A) → isProp (B x))
          → ((a : A) → B (η a))
@@ -137,6 +147,7 @@ elimProp {B = B} Bprop η-ind m-ind e-ind inv-ind = induction where
              (cong induction (refl {x = g1})) (cong induction (refl {x = g2}))
              dq1 dq2
 
+-- Two group homomorphisms from FreeGroup to G are the same if they agree on every a : A
 freeGroupHom≡ : ∀{ℓ'}{Group : Group ℓ'}{f g : GroupHom (freeGroupGroup A) Group}
                → ((a : A) → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
 freeGroupHom≡ {Group = G , GStr} {f = f} {g = g} eqOnA = GroupHom≡ (funExt pointwise) where

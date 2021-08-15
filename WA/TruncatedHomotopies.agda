@@ -1,3 +1,12 @@
+{-
+
+This file contains:
+
+- Definition of truncated encode decode functions
+- Proof of the truncated versions of decodeEncode and encodeDecode
+- Proof that π₁WA ≡ FreeGroup A
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.WA.TruncatedHomotopies where
@@ -34,7 +43,7 @@ encodeDecodeT x g = elim sethood induction g where
   sethood : (z : ∥ code x ∥₂) → isSet (encodeT x (decodeT x z) ≡ z)
   sethood z = isProp→isSet (squash₂ (encodeT x (decodeT x z)) z)
   induction : (a : code x) → ∣ encode x (decode x a) ∣₂ ≡ ∣ a ∣₂
-  induction a = Iso.inv PathIdTrunc₀Iso (truncatedEncodeDecode x a)
+  induction a = encodeDecodeInTruncatedGroupoid x a
 
 TruncatedFamiliesIso : ∀ {ℓ}{A : Type ℓ} → (x : W A) → Iso ∥ base ≡ x ∥₂ ∥ code x ∥₂
 Iso.fun (TruncatedFamiliesIso x)      = encodeT x

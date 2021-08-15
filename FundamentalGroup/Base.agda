@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+
+- Definitions of the loop space and fundamental group of a type
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.FundamentalGroup.Base where

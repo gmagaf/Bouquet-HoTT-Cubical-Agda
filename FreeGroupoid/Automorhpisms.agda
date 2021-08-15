@@ -1,3 +1,13 @@
+{-
+
+This file contains:
+
+- Natural functions from FreeGroupoid into FreeGroupoid
+- Proofs that they induce equivalences
+- Natural paths in Universe from FreeGroupoid to FreeGroupoid
+- Proofs that these functions and paths respect the groupoid structure of FreeGroupoid
+
+-}
 {-# OPTIONS --cubical #-}
 
 module WA.FreeGroupoid.Automorhpisms where
