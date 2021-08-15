@@ -1,6 +1,0 @@
-.gitignore
-
-*.agdai
-
-tests.agda
-tmpFiles/
