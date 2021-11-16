@@ -193,6 +193,8 @@ freeGroupHom≡ {Group = G , GStr} {f = f} {g = g} eqOnA = GroupHom≡ (funExt p
   pointwise : ∀ x → (fst f) x ≡ (fst g) x
   pointwise = elimProp Bprop η-ind m-ind e-ind inv-ind
 
+-- The type of Group Homomotphisms from the FreeGroup A into G
+-- is equivalent to the type of functions from A into G .fst
 A→Group≃GroupHom : ∀{ℓ'}{Group : Group ℓ'} → (A → Group .fst) ≃ GroupHom (freeGroupGroup A) Group
 A→Group≃GroupHom {Group = Group} = biInvEquiv→Equiv-right (biInvEquiv rec inverse rhomotopy inverse lhomotopy) where
   inverse : GroupHom (freeGroupGroup A) Group → A → Group .fst
