@@ -1,0 +1,5 @@
+# build files
+*.agdai
+./_build/*
+
+tmpFiles
