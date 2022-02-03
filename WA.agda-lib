@@ -1,3 +1,0 @@
-name: WA  -- A library for the Wedge of circles of a type A
-depend: cubical-0.3
-include: .

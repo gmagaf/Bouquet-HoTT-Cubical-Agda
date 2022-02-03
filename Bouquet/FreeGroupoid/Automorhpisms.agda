@@ -10,9 +10,9 @@ This file contains:
 -}
 {-# OPTIONS --cubical #-}
 
-module WA.FreeGroupoid.Automorhpisms where
+module Bouquet.FreeGroupoid.Automorhpisms where
 
-open import WA.FreeGroupoid.Base
+open import Bouquet.FreeGroupoid.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence

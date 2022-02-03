@@ -2,14 +2,19 @@
 
 This file contains:
 
-- Properties of the FreeGroup
+Properties of the FreeGroup:
+- FreeGroup A is Set, SemiGroup, Monoid, Group
+- Recursion principle for the FreeGroup
+- Induction principle for the FreeGroup on hProps
+- Condition for the equality of Group Homomorphisms from FreeGroup
+- Equivalence of the types (A → Group .fst) (GroupHom (freeGroupGroup A) Group)
 
 -}
 {-# OPTIONS --cubical #-}
 
-module WA.FreeGroup.Properties where
+module Bouquet.FreeGroup.Properties where
 
-open import WA.FreeGroup.Base
+open import Bouquet.FreeGroup.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
@@ -23,7 +28,7 @@ open import Cubical.Algebra.Semigroup.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
 
 freeGroupIsSet : isSet (FreeGroup A)
@@ -46,34 +51,26 @@ freeGroupGroup : Type ℓ → Group ℓ
 freeGroupGroup A = FreeGroup A , freeGroupGroupStr
 
 -- The recursion principle for the FreeGroup
-rec : ∀{ℓ'}{Group : Group ℓ'} → {A : Type ℓ} → (A → Group .fst) → GroupHom (freeGroupGroup A) Group
-rec {Group = G , (groupstr eg mg invg (isgroup (ismonoid isSemigroupg identityg) inverseg))} {A = A} f = f' , isHom where
-  assocg = IsSemigroup.assoc isSemigroupg
-  isSetg = IsSemigroup.is-set isSemigroupg
-  invrg : ∀ (x : G) → mg x (invg x) ≡ eg
-  invrg = λ x → fst (inverseg x)
-  invlg : ∀ (x : G) → mg (invg x) x ≡ eg
-  invlg = λ x → snd (inverseg x)
-  idrg : ∀ (x : G) → x ≡ mg x eg
-  idrg = λ x → sym (fst (identityg x))
-  idlg : ∀ (x : G) → x ≡ mg eg x
-  idlg = λ x → sym (snd (identityg x))
-  f' : FreeGroup A → G
+rec : {Group : Group ℓ'} → (A → Group .fst) → GroupHom (freeGroupGroup A) Group
+rec {Group = G , (groupstr 1g _·_ invg (isgroup (ismonoid isSemigroupg identityg) inverseg))} f = f' , isHom where
+  f' : FreeGroup _ → G
   f' (η a)                  = f a
-  f' (m g1 g2)              = mg (f' g1) (f' g2)
-  f' e                      = eg
+  f' (m g1 g2)              = (f' g1) · (f' g2)
+  f' e                      = 1g
   f' (inv g)                = invg (f' g)
-  f' (assoc g1 g2 g3 i)     = assocg (f' g1) (f' g2) (f' g3) i
-  f' (idr g i)              = idrg (f' g) i
-  f' (idl g i)              = idlg (f' g) i
-  f' (invr g i)             = invrg (f' g) i
-  f' (invl g i)             = invlg (f' g) i
-  f' (trunc g1 g2 p q i i₁) = isSetg (f' g1) (f' g2) (cong f' p) (cong f' q) i i₁
+  f' (assoc g1 g2 g3 i)     = IsSemigroup.assoc isSemigroupg (f' g1) (f' g2) (f' g3) i
+  f' (idr g i)              = sym (fst (identityg (f' g))) i
+  f' (idl g i)              = sym (snd (identityg (f' g))) i
+  f' (invr g i)             = fst (inverseg (f' g)) i
+  f' (invl g i)             = snd (inverseg (f' g)) i
+  f' (trunc g1 g2 p q i i₁) = IsSemigroup.is-set isSemigroupg (f' g1) (f' g2) (cong f' p) (cong f' q) i i₁
   isHom : IsGroupHom freeGroupGroupStr f' _
-  isHom = record { pres· = λ x y → refl ; pres1 = refl ; presinv = λ x → refl }
+  IsGroupHom.pres·   isHom = λ g1 g2 → refl
+  IsGroupHom.pres1   isHom = refl
+  IsGroupHom.presinv isHom = λ g → refl
 
 -- The induction principle for the FreeGroup for hProps
-elimProp : ∀ {ℓ'}{B : FreeGroup A → Type ℓ'}
+elimProp : {B : FreeGroup A → Type ℓ'}
          → ((x : FreeGroup A) → isProp (B x))
          → ((a : A) → B (η a))
          → ((g1 g2 : FreeGroup A) → B g1 → B g2 → B (m g1 g2))
@@ -148,19 +145,13 @@ elimProp {B = B} Bprop η-ind m-ind e-ind inv-ind = induction where
              dq1 dq2
 
 -- Two group homomorphisms from FreeGroup to G are the same if they agree on every a : A
-freeGroupHom≡ : ∀{ℓ'}{Group : Group ℓ'}{f g : GroupHom (freeGroupGroup A) Group}
-               → ((a : A) → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
-freeGroupHom≡ {Group = G , GStr} {f = f} {g = g} eqOnA = GroupHom≡ (funExt pointwise) where
-  1g : G
-  1g = GroupStr.1g GStr
-  _·_ : G → G → G
-  _·_ = GroupStr._·_ GStr
-  invg : G → G
-  invg = GroupStr.inv GStr
+freeGroupHom≡ : {Group : Group ℓ'}{f g : GroupHom (freeGroupGroup A) Group}
+               → (∀ a → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
+freeGroupHom≡ {Group = G , (groupstr 1g _·_ invg isGrp)} {f} {g} eqOnA = GroupHom≡ (funExt pointwise) where
   B : ∀ x → Type _
   B x = (fst f) x ≡ (fst g) x
   Bprop : ∀ x → isProp (B x)
-  Bprop x = (isSetGroup (G , GStr)) ((fst f) x) ((fst g) x)
+  Bprop x = (isSetGroup (G , groupstr 1g _·_ invg isGrp)) ((fst f) x) ((fst g) x)
   η-ind : ∀ a → B (η a)
   η-ind = eqOnA
   m-ind : ∀ g1 g2 → B g1 → B g2 → B (m g1 g2)
@@ -195,11 +186,11 @@ freeGroupHom≡ {Group = G , GStr} {f = f} {g = g} eqOnA = GroupHom≡ (funExt p
 
 -- The type of Group Homomotphisms from the FreeGroup A into G
 -- is equivalent to the type of functions from A into G .fst
-A→Group≃GroupHom : ∀{ℓ'}{Group : Group ℓ'} → (A → Group .fst) ≃ GroupHom (freeGroupGroup A) Group
-A→Group≃GroupHom {Group = Group} = biInvEquiv→Equiv-right (biInvEquiv rec inverse rhomotopy inverse lhomotopy) where
-  inverse : GroupHom (freeGroupGroup A) Group → A → Group .fst
-  inverse hom a = (hom .fst) (η a)
-  rhomotopy : ∀ hom → rec (inverse hom) ≡ hom
-  rhomotopy hom = freeGroupHom≡ (λ a → refl)
-  lhomotopy : ∀ f → inverse (rec f) ≡ f
-  lhomotopy f = funExt (λ a → refl)
+A→Group≃GroupHom : {Group : Group ℓ'} → (A → Group .fst) ≃ GroupHom (freeGroupGroup A) Group
+A→Group≃GroupHom {Group = Group} = biInvEquiv→Equiv-right biInv where
+  biInv : BiInvEquiv (A → Group .fst) (GroupHom (freeGroupGroup A) Group)
+  BiInvEquiv.fun  biInv              = rec
+  BiInvEquiv.invr biInv (hom , _) a  = hom (η a)
+  BiInvEquiv.invr-rightInv biInv hom = freeGroupHom≡ (λ a → refl)
+  BiInvEquiv.invl biInv (hom ,  _) a = hom (η a)
+  BiInvEquiv.invl-leftInv biInv f    = funExt (λ a → refl)

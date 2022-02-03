@@ -7,7 +7,7 @@ This file contains:
 -}
 {-# OPTIONS --cubical #-}
 
-module WA.FundamentalGroup.Properties where
+module Bouquet.FundamentalGroup.Properties where
 
 open import Cubical.Foundations.Prelude
 
@@ -18,7 +18,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.Semigroup.Base
 
-open import WA.FundamentalGroup.Base
+open import Bouquet.FundamentalGroup.Base
 
 private
   variable
@@ -41,14 +41,10 @@ private
 1π₁ = ∣ refl ∣₂
 
 invπ₁ : π₁ {base = base} → π₁
-invπ₁ r = rec π₁IsSet symLoopClass r where
-  symLoopClass : Ω → π₁
-  symLoopClass p = ∣ sym p ∣₂
+invπ₁ = map sym
 
 ∙-π₁ : π₁ {base = base} → π₁ → π₁
-∙-π₁ r s = rec π₁IsSet sndRec s where
-  sndRec : Ω → π₁
-  sndRec q = rec π₁IsSet (λ p → ∣ p ∙ q ∣₂) r
+∙-π₁ = rec2 π₁IsSet (λ p q → ∣ p ∙ q ∣₂)
 
 assocπ₁ : ∀ (r s t : π₁ {base = base}) → ∙-π₁ r (∙-π₁ s t) ≡ ∙-π₁ (∙-π₁ r s) t
 assocπ₁ r s t = elim3 eqIsSet baseProof r s t where
@@ -128,5 +124,5 @@ lCancelπ₁ = elim eqIsSet baseProof where
 π₁GroupStr : GroupStr (π₁ {base = base})
 π₁GroupStr = groupstr 1π₁ ∙-π₁ invπ₁ π₁IsGroup
 
-π₁Group : ∀ {ℓ}{A : Type ℓ}{base : A} → Group ℓ
+π₁Group : {A : Type ℓ}{base : A} → Group ℓ
 π₁Group {base = base} = π₁ {base = base} , π₁GroupStr

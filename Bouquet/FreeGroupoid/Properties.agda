@@ -2,15 +2,18 @@
 
 This file contains:
 
-- Properties of FreeGroupoid
+Properties of FreeGroupoid:
+- Induction principle for the FreeGroupoid on hProps
+- ∥freeGroupoid∥₂ is a Group
+- FreeGroup A ≡ ∥ FreeGroupoid A ∥₂
 
 -}
 {-# OPTIONS --cubical #-}
 
-module WA.FreeGroupoid.Properties where
+module Bouquet.FreeGroupoid.Properties where
 
-open import WA.FreeGroupoid.Base
-open import WA.FreeGroup renaming (elimProp to freeGroupElimProp)
+open import Bouquet.FreeGroupoid.Base
+open import Bouquet.FreeGroup renaming (elimProp to freeGroupElimProp)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -24,11 +27,11 @@ open import Cubical.Algebra.Semigroup.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
 
 -- The induction principle for the FreeGroupoid for hProps
-elimProp : ∀ {ℓ'}{B : FreeGroupoid A → Type ℓ'}
+elimProp : ∀ {B : FreeGroupoid A → Type ℓ'}
          → ((x : FreeGroupoid A) → isProp (B x))
          → ((a : A) → B (η a))
          → ((g1 g2 : FreeGroupoid A) → B g1 → B g2 → B (m g1 g2))
@@ -92,7 +95,7 @@ elimProp {B = B} Bprop η-ind m-ind e-ind inv-ind = induction where
 ∥freeGroupoid∥₂IsSet = squash₂
 
 ∣m∣₂ : ∥ FreeGroupoid A ∥₂ → ∥ FreeGroupoid A ∥₂ → ∥ FreeGroupoid A ∥₂
-∣m∣₂ g1 g2 = recTrunc ∥freeGroupoid∥₂IsSet (λ g1' → recTrunc ∥freeGroupoid∥₂IsSet (λ g2' → ∣ m g1' g2' ∣₂) g2) g1
+∣m∣₂ = rec2 ∥freeGroupoid∥₂IsSet (λ g1 g2 → ∣ m g1 g2 ∣₂)
 
 ∥freeGroupoid∥₂IsSemiGroup : ∀ {ℓ}{A : Type ℓ} → IsSemigroup ∣m∣₂
 ∥freeGroupoid∥₂IsSemiGroup {A = A} = issemigroup ∥freeGroupoid∥₂IsSet |assoc∣₂ where
@@ -112,7 +115,7 @@ elimProp {B = B} Bprop η-ind m-ind e-ind inv-ind = induction where
          elim (λ g → isProp→isSet (squash₂ (∣m∣₂ ∣e∣₂ g) g)) (λ g → cong (λ g' → ∣ g' ∣₂) (sym (idl g))) x)
 
 ∣inv∣₂ : ∥ FreeGroupoid A ∥₂ → ∥ FreeGroupoid A ∥₂
-∣inv∣₂ x = recTrunc ∥freeGroupoid∥₂IsSet (λ g → ∣ inv g ∣₂) x
+∣inv∣₂ = map inv
 
 ∥freeGroupoid∥₂IsGroup : IsGroup {G = ∥ FreeGroupoid A ∥₂} ∣e∣₂ ∣m∣₂ ∣inv∣₂
 ∥freeGroupoid∥₂IsGroup = isgroup ∥freeGroupoid∥₂IsMonoid

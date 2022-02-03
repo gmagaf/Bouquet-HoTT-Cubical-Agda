@@ -3,38 +3,44 @@
 This file contains:
 
 - Proof that loopingT and windingT are group homomorphisms
+- Proof that the homotopy level of the FreeGroupoid of A greater or equal of the homotopy level of ΩBouquet
 
 -}
 {-# OPTIONS --cubical #-}
 
-module WA.WA.Properties where
+module Bouquet.Bouquet.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.HITs.SetTruncation
 open import Cubical.Algebra.Group
 
-open import WA.WA.Base
-open import WA.WA.CodeWindingLooping
-open import WA.WA.NonTruncatedHomotopies
-open import WA.WA.TruncatedHomotopies
-open import WA.FreeGroupoid
-open import WA.FreeGroup
-open import WA.FundamentalGroup
+open import Bouquet.Bouquet.Base
+open import Bouquet.Bouquet.CodeWindingLooping
+open import Bouquet.Bouquet.NonTruncatedHomotopies
+open import Bouquet.Bouquet.TruncatedHomotopies
+open import Bouquet.FreeGroupoid
+open import Bouquet.FreeGroup
+open import Bouquet.FundamentalGroup
+
+private
+  variable
+    ℓ : Level
+    A : Type ℓ
 
 -- loopingT and windingT are group homomorphisms
 
-loopingTHom : ∀ {ℓ}{A : Type ℓ} → GroupHom (∥freeGroupoid∥₂Group A) π₁WAGroup
-loopingTHom {A = A} = loopingT , isHom where
-  isHom : IsGroupHom (∥freeGroupoid∥₂Group A .snd) loopingT (π₁WAGroup .snd)
+loopingTHom : GroupHom (∥freeGroupoid∥₂Group A) π₁BouquetGroup
+loopingTHom = loopingT , isHom where
+  isHom : IsGroupHom (∥freeGroupoid∥₂Group A .snd) loopingT (π₁BouquetGroup .snd)
   IsGroupHom.pres· isHom x y =
     elim2 (λ x y → isProp→isSet (π₁IsSet (loopingT (∣m∣₂ x y)) (∙-π₁ (loopingT x) (loopingT y)))) (λ a b → refl) x y
   IsGroupHom.pres1 isHom = refl
   IsGroupHom.presinv isHom x = elim (λ x → isProp→isSet (π₁IsSet (loopingT (∣inv∣₂ x)) (invπ₁ (loopingT x)))) (λ a → refl) x
 
-windingTHom : ∀ {ℓ}{A : Type ℓ} → GroupHom π₁WAGroup (∥freeGroupoid∥₂Group A)
-windingTHom {A = A} = windingT , isHom where
-  isHom : IsGroupHom (π₁WAGroup .snd) windingT (∥freeGroupoid∥₂Group A .snd)
+windingTHom : GroupHom π₁BouquetGroup (∥freeGroupoid∥₂Group A)
+windingTHom = windingT , isHom where
+  isHom : IsGroupHom (π₁BouquetGroup .snd) windingT (∥freeGroupoid∥₂Group A .snd)
   IsGroupHom.pres· isHom x y =
     elim2 (λ x y → isProp→isSet (∥freeGroupoid∥₂IsSet (windingT (∙-π₁ x y)) (∣m∣₂ (windingT x) (windingT y)))) ind x y where
       ind : ∀ a b → windingT (∙-π₁ ∣ a ∣₂ ∣ b ∣₂) ≡ ∣m∣₂ (windingT ∣ a ∣₂) (windingT ∣ b ∣₂)
@@ -69,6 +75,6 @@ windingTHom {A = A} = windingT , isHom where
         ≡⟨ refl ⟩
         ∣inv∣₂ (windingT ∣ a ∣₂) ∎
 
--- proof that the homotopy level of the FreeGroupoid of A greater or equal of the homotopy level of ΩWA
-WAisOfHLevelOfFreeGroupoid : ∀ {ℓ}{A : Type ℓ} → (n : HLevel) → isOfHLevel n (FreeGroupoid A) → isOfHLevel n (ΩWA)
-WAisOfHLevelOfFreeGroupoid n freeGrpdLevel = isOfHLevelRetract n winding looping left-homotopy freeGrpdLevel
+-- proof that the homotopy level of the FreeGroupoid of A greater or equal of the homotopy level of ΩBouquet
+bouquetIsOfHLevelOfFreeGroupoid : (n : HLevel) → isOfHLevel n (FreeGroupoid A) → isOfHLevel n (ΩBouquet)
+bouquetIsOfHLevelOfFreeGroupoid n freeGrpdLevel = isOfHLevelRetract n winding looping left-homotopy freeGrpdLevel
