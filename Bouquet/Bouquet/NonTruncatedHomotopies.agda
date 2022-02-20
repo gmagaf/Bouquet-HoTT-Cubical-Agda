@@ -14,7 +14,6 @@ module Bouquet.Bouquet.NonTruncatedHomotopies where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to pathAssoc)
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
