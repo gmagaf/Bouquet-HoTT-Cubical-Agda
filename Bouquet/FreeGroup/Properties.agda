@@ -184,7 +184,7 @@ freeGroupHom≡ {Group = G , (groupstr 1g _·_ invg isGrp)} {f} {g} eqOnA = Grou
   pointwise : ∀ x → (fst f) x ≡ (fst g) x
   pointwise = elimProp Bprop η-ind m-ind e-ind inv-ind
 
--- The type of Group Homomotphisms from the FreeGroup A into G
+-- The type of Group Homomorphisms from the FreeGroup A into G
 -- is equivalent to the type of functions from A into G .fst
 A→Group≃GroupHom : {Group : Group ℓ'} → (A → Group .fst) ≃ GroupHom (freeGroupGroup A) Group
 A→Group≃GroupHom {Group = Group} = biInvEquiv→Equiv-right biInv where
